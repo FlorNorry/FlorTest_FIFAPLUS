@@ -45,6 +45,7 @@ export class HomePage {
     await this.page.keyboard.press('Escape');
     await this.page.keyboard.press('Escape');
     await this.closePopUp.click();
+    await this.closePopUp.click();//borrar este cambio
   }
 
   /**
