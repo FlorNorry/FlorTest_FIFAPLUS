@@ -1,5 +1,6 @@
 import { Before, BeforeAll, After, AfterAll, Status } from '@cucumber/cucumber';
 import { chromium, Browser, BrowserContext, Page } from '@playwright/test';
+import { readFile } from 'fs/promises';
 import { CustomWorld } from '../support/custom-world';
 
 let browser: Browser;
@@ -69,21 +70,24 @@ Before(async function (this: CustomWorld) {
 After(async function (this: CustomWorld, scenario) {
   console.log(`🧹 Limpiando recursos del escenario: ${scenario.pickle.name}`);
   
+  // Referencia al video antes de cerrar la página (la ruta se resuelve al cerrar el contexto)
+  const video = this.page?.video();
+
   // Si el escenario falló, tomar captura de pantalla
   if (scenario.result?.status === Status.FAILED) {
     console.log('❌ Escenario falló. Tomando captura de pantalla...');
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const screenshotName = `failed-${scenario.pickle.name.replace(/[^a-zA-Z0-9]/g, '-')}-${timestamp}`;
     const screenshotPath = `screenshots/${screenshotName}.png`;
-    
-    await this.page.screenshot({ 
-      path: screenshotPath, 
-      fullPage: true 
+
+    const screenshot = await this.page.screenshot({
+      path: screenshotPath,
+      fullPage: true
     });
     console.log(`📸 Captura de pantalla guardada en: ${screenshotPath}`);
-    
-    // Adjuntar la captura al reporte
-    this.attach(await this.page.screenshot({ fullPage: true }), 'image/png');
+
+    // Adjuntar la captura al reporte (Cucumber HTML y Allure)
+    this.attach(screenshot, 'image/png');
   }
 
   // Cerrar página y contexto
@@ -93,7 +97,18 @@ After(async function (this: CustomWorld, scenario) {
   if (context) {
     await context.close();
   }
-  
+
+  // Adjuntar el video al reporte (la ruta sólo se resuelve tras cerrar el contexto)
+  if (video) {
+    try {
+      const videoPath = await video.path();
+      this.attach(await readFile(videoPath), 'video/webm');
+      console.log(`🎥 Video adjuntado al reporte: ${videoPath}`);
+    } catch (error) {
+      console.log(`⚠️ No se pudo adjuntar el video: ${(error as Error).message}`);
+    }
+  }
+
   console.log('✅ Recursos del escenario limpiados');
 });
 
