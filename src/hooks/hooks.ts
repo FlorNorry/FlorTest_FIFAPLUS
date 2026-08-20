@@ -16,6 +16,7 @@ BeforeAll(async function () {
     headless: process.env.HEADLESS =='false',
     slowMo: parseInt(process.env.SLOW_MO || '100'),
     args: ['--no-sandbox',
+      '--start-maximized',
       '--disable-setuid-sandbox',
       '--disable-dev-shm-usage',
       '--disable-web-security',
@@ -76,6 +77,12 @@ After(async function (this: CustomWorld, scenario) {
   // Si el escenario falló, tomar captura de pantalla
   if (scenario.result?.status === Status.FAILED) {
     console.log('❌ Escenario falló. Tomando captura de pantalla...');
+
+    // Mostrar el ERROR REAL en la terminal (mensaje + stack trace)
+    console.error('\n──────────────── ERROR ────────────────');
+    console.error(`Escenario: ${scenario.pickle.name}`);
+    console.error(scenario.result.message ?? 'Sin mensaje de error disponible');
+    console.error('────────────────────────────────────────\n');
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const screenshotName = `failed-${scenario.pickle.name.replace(/[^a-zA-Z0-9]/g, '-')}-${timestamp}`;
     const screenshotPath = `screenshots/${screenshotName}.png`;

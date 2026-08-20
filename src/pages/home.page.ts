@@ -1,5 +1,5 @@
-import { Page, Locator } from '@playwright/test';
-import { link } from 'fs';
+import { Page, Locator, expect } from '@playwright/test';
+
 
 /**
  * Page Object para la página de inicio
@@ -17,6 +17,7 @@ export class HomePage {
   private readonly idPassword: Locator;
   private readonly loginButton: Locator;
 
+
   constructor(page: Page) {
     this.page = page;
     this.signInMenu = page.locator('//button[@class="my-account-button_myAccountButton__Pdkav"]');
@@ -26,6 +27,7 @@ export class HomePage {
     this.idEmail = page.locator('input[id="email"]');
     this.idPassword = page.locator('input[id="password"]');
     this.loginButton = page.locator('button[id="loginFormSubmitBtn"]');
+    
   }
 
   /**
@@ -40,12 +42,14 @@ export class HomePage {
   }
 
   async closeWindows(): Promise<void>{
+    await this.acceptCookies.click();
     //await this.acceptCookies.isVisible({timeout: 5000});
-    await this.page.keyboard.press('Escape');
-    await this.page.keyboard.press('Escape');
-    await this.page.keyboard.press('Escape');
+   // await this.page.keyboard.press('Escape');
+   // await this.page.keyboard.press('Escape');
+   // await this.page.keyboard.press('Escape');
     await this.closePopUp.click();
-    //await this.closePopUp.click();//borrar este cambio
+    // Cerrar el pop-up promocional SOLO si aparece (evita el timeout cuando no está)
+  
   }
 
   /**
@@ -76,6 +80,11 @@ export class HomePage {
     async pressSubmitButton(): Promise<void>{
       await this.loginButton.click();
   }
+
+    async valitacionUserLoggues(username: string): Promise<void>{
+      await this.signInMenu.click();
+      await expect(this.page.getByText(username)).toBeVisible();
+      }
 /*
   
    //Verifica si el usuario está autenticado

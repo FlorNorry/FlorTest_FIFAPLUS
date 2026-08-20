@@ -38,7 +38,7 @@ When('click on submit button', {timeout: 60000}, async function(this: CustomWorl
   await this.page.waitForTimeout(1000); // Wait for login to process
 });
 
-Then('the user is loggued in the fifa page correctly', {timeout: 60000}, async function(this: CustomWorld) {
+Then('the {string} is loggued in the fifa page correctly', {timeout: 60000}, async function(this: CustomWorld, username: string) {
   // Verify user is logged in by checking for authenticated elements
   await expect(this.page.locator('.user-profile, .dashboard, .main-content')).toBeVisible();
   // Alternatively, verify URL contains dashboard or authenticated page

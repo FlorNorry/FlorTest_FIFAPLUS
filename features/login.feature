@@ -9,7 +9,7 @@ Background:
 
     When enter valid credentials "<username>" and "<password>"
     When click on submit button
-    Then the user is loggued in the fifa page correctly
+    Then the "<username>" is loggued in the fifa page correctly
 
   Examples:
     | username                    | password        |
